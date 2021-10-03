@@ -1,7 +1,6 @@
 from aiogram import Bot, Dispatcher
 
-from .bot import bot
-from .dispatcher import dispatcher
+from .bot import bot, dispatcher
 
 
 async def get_bot_dispatcher() -> Dispatcher:
