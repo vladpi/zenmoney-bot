@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from core import LOGGING
+from core import LOGGING, database
 from modules import routers
 from modules.bot import setup_bot
 
@@ -12,12 +12,13 @@ for router in routers:
 
 @app.on_event('startup')
 async def startup():
+    await database.connect()
     await setup_bot()
 
 
 @app.on_event('shutdown')
 async def shutdown():
-    pass
+    await database.disconnect()
 
 
 if __name__ == '__main__':
