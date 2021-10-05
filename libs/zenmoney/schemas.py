@@ -249,3 +249,11 @@ class DiffResponse(ZenMoneyBaseModel):
 
 class DiffRequest(DiffResponse):
     current_client_timestamp: int = Field(..., alias='currentClientTimestamp')  # unix timestamp
+
+
+class GetTokenResposne(BaseModel):
+    access_token: Optional[str]
+    token_type: Optional[str]
+    expires_in: Optional[int]
+    refresh_token: Optional[str]
+    error: Optional[str]

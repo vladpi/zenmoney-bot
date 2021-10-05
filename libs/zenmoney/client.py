@@ -2,9 +2,9 @@ from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 from urllib.parse import urlencode
 
-from httpx import AsyncClient, Auth, Response
+from httpx import AsyncClient, Auth
 
-from .schemas import DiffRequest, DiffResponse
+from .schemas import DiffRequest, DiffResponse, GetTokenResposne
 
 if TYPE_CHECKING:
     from .schemas import (
@@ -46,7 +46,7 @@ class ZenMoneyAPIClient:
 
         return f'{self.BASE_URL}/oauth2/authorize/?{urlencode(params)}'
 
-    async def get_token(self, auth_code: str, redirect_url: str) -> Response:
+    async def get_token(self, auth_code: str, redirect_url: str) -> GetTokenResposne:
         data = {
             'grant_type': 'authorization_code',
             'client_id': self.key,
@@ -56,7 +56,9 @@ class ZenMoneyAPIClient:
         }
 
         async with AsyncClient() as client:
-            return await client.post(f'{self.BASE_URL}/oauth2/token/', data=data)
+            response = await client.post(f'{self.BASE_URL}/oauth2/token/', data=data)
+
+        return GetTokenResposne(**response.json())
 
     async def diff(
         self,
