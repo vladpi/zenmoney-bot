@@ -15,6 +15,19 @@ class EncryptedStr(str):
     def encrypt(cls, value: str) -> 'EncryptedStr':
         return cls(cipher.encrypt(value))
 
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not isinstance(v, str):
+            raise TypeError('string required')
+        return cls(v)
+
+    def __repr__(self):
+        return f'EncryptedStr({super().__repr__()})'
+
 
 class UserModel(BaseModel):
     id: int

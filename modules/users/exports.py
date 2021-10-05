@@ -11,13 +11,18 @@ async def create_or_update_user(
     first_name: Optional[str] = None,
     last_name: Optional[str] = None,
 ) -> UserModel:
-    user = UserModel(
-        id=id_,
-        username=username,
-        first_name=first_name,
-        last_name=last_name,
-    )
-    return await user_service.put(user)
+    user = await user_service.get(id_)
+
+    if user is None:
+        user = UserModel(
+            id=id_,
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+        )
+        user = await user_service.put(user)
+
+    return user
 
 
 async def get_user(id_: int) -> Optional[UserModel]:
