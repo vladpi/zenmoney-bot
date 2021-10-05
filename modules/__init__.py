@@ -1,7 +1,9 @@
 import inspect
 import sys
 
+from .accounts import *  # noqa
 from .bot import *  # noqa
+from .categories import *  # noqa
 from .users import *  # noqa
 
 routers = []
