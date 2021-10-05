@@ -95,7 +95,7 @@ class ZenMoneyAPIClient:
         async with AsyncClient() as client:
             response = await client.post(
                 f'{self.BASE_URL}/v8/diff/',
-                json=data.json(),
+                json=data.dict(),
                 auth=BearerAuth(user_token),
             )
         return DiffResponse(**response.json())

@@ -237,6 +237,7 @@ class DiffResponse(ZenMoneyBaseModel):
     instrument: Optional[List[Instrument]] = None
     company: Optional[List[Company]] = None
     user: Optional[List[User]] = None
+    account: Optional[List[Account]] = None
     tag: Optional[List[Tag]] = None
     merchant: Optional[List[Merchant]] = None
     budget: Optional[List[Budget]] = None
