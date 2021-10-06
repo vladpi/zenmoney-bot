@@ -5,9 +5,9 @@ from starlette import status
 from starlette.responses import Response
 
 from modules.bot.bot import bot
-from modules.users import get_user, update_user_zenmoney_token
+from modules.users import get_user
 
-from .internals import get_auth_tokens
+from .internals import get_auth_tokens, init_user
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +25,9 @@ async def handle_webhook(request: Request, user_id: int, code: str) -> Response:
 
     access_token, _ = await get_auth_tokens(code, user_id)
 
+    # FIXME for bot export methods
     if access_token is not None:
-        await update_user_zenmoney_token(user, access_token)
+        await init_user(user, access_token)
         await bot.send_message(chat_id=user_id, text='Успешная авторизация в ДзенМани')
     else:
         await bot.send_message(

@@ -7,6 +7,16 @@ if TYPE_CHECKING:
     from .schemas import UserModel
 
 
-async def update_zenmoney_token(user: 'UserModel', token: str) -> 'UserModel':
+async def init_zenmoney_data(
+    user: 'UserModel',
+    token: str,
+    last_sync: int,
+) -> 'UserModel':
     user.zenmoney_token = EncryptedStr.encrypt(token)
+    user.zenmoney_last_sync = last_sync
+    return await user_service.put(user)
+
+
+async def update_zenmoney_last_sync(user: 'UserModel', last_sync: int) -> 'UserModel':
+    user.zenmoney_last_sync = last_sync
     return await user_service.put(user)
