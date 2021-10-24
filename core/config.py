@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseSettings, Field, HttpUrl, PostgresDsn, SecretStr
+from pydantic import BaseSettings, Field, HttpUrl, PostgresDsn, RedisDsn, SecretStr
 
 
 class SQLAlchemyPostgresDsn(PostgresDsn):
@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     WEBHOOK_HOST: HttpUrl
 
     DATABASE_URL: SQLAlchemyPostgresDsn
+    REDIS_URL: RedisDsn
 
     LOG_LEVEL: str = Field(default='INFO')
 

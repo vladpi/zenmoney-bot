@@ -27,4 +27,4 @@ repos:
         args: [
             "--sqlite-cache"
         ]
-        additional_dependencies: [pydantic>1.8.0]
+        additional_dependencies: [pydantic>1.8.0, types-dateparser>=1.0.7]

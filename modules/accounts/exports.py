@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
 from .internals import create_from_zenmoney_account
+from .service import account_service
 
 if TYPE_CHECKING:
     from libs.zenmoney.schemas import Account
@@ -10,3 +11,11 @@ if TYPE_CHECKING:
 
 async def create_account_from_zenmoney_account(user_id: int, account: 'Account') -> 'AccountModel':
     return await create_from_zenmoney_account(user_id, account)
+
+
+async def get_accounts_by_user(user_id: int) -> List['AccountModel']:
+    return await account_service.get_by_user(user_id)
+
+
+async def get_user_account_by_title(user_id: int, title: str) -> Optional['AccountModel']:
+    return await account_service.get_by_title(user_id, title)
