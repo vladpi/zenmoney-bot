@@ -20,17 +20,11 @@ Docs: https://github.com/zenmoney/ZenPlugins/wiki/ZenMoney-API#Сущности-
 
 
 class ZenMoneyBaseModel(BaseModel):
-    def dict(self, *args, **kwargs) -> 'DictStrAny':
-        if 'exclude_none' not in kwargs:
-            kwargs['exclude_none'] = True
-        if 'by_alias' not in kwargs:
-            kwargs['by_alias'] = True
-        return super().dict(*args, **kwargs)
-
     class Config:
         allow_population_by_field_name = True
         json_encoders = {
             datetime: lambda v: int(v.timestamp()),
+            date: lambda v: v.strftime('%Y-%m-%d'),
         }
 
 
@@ -198,15 +192,22 @@ class Transaction(ZenMoneyBaseModel):
 
     mcc: Optional[int] = None
 
-    reminder_marker: Optional[str] = None
+    reminder_marker: Optional[str] = Field(None, alias='reminderMarker')
 
     op_income: Optional[float] = Field(None, alias='opIncome')
     op_income_instrument: Optional[int] = Field(None, alias='opIncomeInstrument')
     op_outcome: Optional[float] = Field(None, alias='opOutcome')
     op_outcome_instrument: Optional[int] = Field(None, alias='opOutcomeInstrument')
 
+    income_bank_id: Optional[int] = Field(None, alias='incomeBankID')
+    outcome_bank_id: Optional[int] = Field(None, alias='outcomeBankID')
+
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+
+    def dict(self, *args, **kwargs) -> 'DictStrAny':
+        kwargs['exclude_none'] = False
+        return super().dict(*args, **kwargs)
 
 
 class Budget(ZenMoneyBaseModel):
@@ -250,6 +251,11 @@ class DiffResponse(ZenMoneyBaseModel):
 
 class DiffRequest(DiffResponse):
     current_client_timestamp: int = Field(..., alias='currentClientTimestamp')  # unix timestamp
+
+    def json(self, *args, **kwargs) -> str:
+        kwargs['by_alias'] = True
+        kwargs['exclude_none'] = True
+        return super().json(*args, **kwargs)
 
 
 class GetTokenResposne(BaseModel):
