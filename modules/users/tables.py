@@ -12,4 +12,5 @@ users = sa.Table(
     sa.Column('created_at', sa.DateTime, server_default=sa.func.now(), nullable=False),
     sa.Column('zenmoney_token', sa.Text, nullable=True),
     sa.Column('zenmoney_last_sync', sa.BigInteger, nullable=True),
+    sa.Column('zenmoney_user_id', sa.BigInteger, nullable=True),
 )
