@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from aiogram import filters, types
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 
 from modules.zenmoney import get_auth_url
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 @dispatcher.message_handler(filters.CommandStart(), state='*')
 async def start_handler(message: types.Message, user: 'UserModel'):
-    await message.answer(f'Hello, {user.first_name}!')
+    await message.answer(f'Hello, {user.first_name}!', reply_markup=ReplyKeyboardRemove())
 
 
 @dispatcher.message_handler(filters.Command('login'), state='*')
