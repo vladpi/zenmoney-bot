@@ -37,5 +37,6 @@ class UserModel(BaseModel):
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+    zenmoney_user_id: Optional[int]
     zenmoney_token: Optional[EncryptedStr]
     zenmoney_last_sync: Optional[int]

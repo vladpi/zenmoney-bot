@@ -29,8 +29,18 @@ async def get_user(id_: int) -> Optional[UserModel]:
     return await user_service.get(id_)
 
 
-async def init_user_zenmoney_data(user: UserModel, token: str, last_sync: int) -> UserModel:
-    return await init_zenmoney_data(user, token, last_sync)
+async def init_user_zenmoney_data(
+    user: UserModel,
+    token: str,
+    last_sync: int,
+    user_id: int,
+) -> UserModel:
+    return await init_zenmoney_data(
+        user=user,
+        token=token,
+        last_sync=last_sync,
+        user_id=user_id,
+    )
 
 
 async def update_user_zenmoney_last_sync(user: 'UserModel', last_sync: int) -> 'UserModel':

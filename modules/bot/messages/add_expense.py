@@ -74,5 +74,5 @@ async def expense_created(to_chat_id: int):
     await bot.send_message(
         chat_id=to_chat_id,
         text='Расход создан!',
+        reply_markup=ReplyKeyboardRemove(),
     )
-    # await main_menu(to_chat_id, text=text)
