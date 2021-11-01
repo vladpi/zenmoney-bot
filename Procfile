@@ -1,1 +1,1 @@
-web: alembic upgrade head & gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker
+web: alembic upgrade head & gunicorn main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker
