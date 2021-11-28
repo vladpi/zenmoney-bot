@@ -17,6 +17,16 @@ class CategoryService(BaseDBService):
 
         return [CategoryModel.parse_obj(record) for record in records]
 
+    async def get_outcome_by_user(self, user_id: int) -> List[CategoryModel]:
+        records = await self.db.fetch_all(
+            sa.select([categories]).where(
+                categories.c.user_id == user_id,
+                categories.c.is_outcome,
+            )
+        )
+
+        return [CategoryModel.parse_obj(record) for record in records]
+
     async def get_by_title(self, user_id: int, title: str) -> Optional[CategoryModel]:
         record = await self.db.fetch_one(
             sa.select([categories]).where(

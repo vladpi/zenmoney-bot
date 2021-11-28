@@ -17,5 +17,9 @@ async def get_categories_by_user(user_id: int) -> List['CategoryModel']:
     return await category_service.get_by_user(user_id)
 
 
+async def get_outcome_categories_by_user(user_id: int) -> List['CategoryModel']:
+    return await category_service.get_outcome_by_user(user_id)
+
+
 async def get_user_category_by_title(user_id: int, title: str) -> Optional['CategoryModel']:
     return await category_service.get_by_title(user_id, title)

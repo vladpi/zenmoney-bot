@@ -9,7 +9,7 @@ from modules.accounts import get_accounts_by_user, get_user_account_by_title
 from modules.bot import buttons, messages
 from modules.bot.bot import dispatcher
 from modules.bot.states import AddExpense
-from modules.categories import get_categories_by_user, get_user_category_by_title
+from modules.categories import get_outcome_categories_by_user, get_user_category_by_title
 from modules.zenmoney import create_expense_transaction
 
 if TYPE_CHECKING:
@@ -87,7 +87,7 @@ async def add_expense_date(message: types.Message, state: FSMContext, user: 'Use
         async with state.proxy() as proxy:
             proxy['expense']['at_date'] = parsed_date.strftime('%Y-%m-%d')
 
-        user_categories = await get_categories_by_user(user.id)
+        user_categories = await get_outcome_categories_by_user(user.id)
         await messages.add_expense.select_category(message.chat.id, categories=user_categories)
         await AddExpense.category.set()
 
