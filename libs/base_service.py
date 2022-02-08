@@ -52,3 +52,10 @@ class BaseDBService:
             return self.model_class.parse_obj(record)
 
         return None
+
+    async def delete(self, id_: Any) -> None:
+        query = sa.delete(self.table).where(self.pk_field == id_)
+
+        await self.db.execute(query)
+
+        return None

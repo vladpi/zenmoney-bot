@@ -19,3 +19,7 @@ async def get_accounts_by_user(user_id: int) -> List['AccountModel']:
 
 async def get_user_account_by_title(user_id: int, title: str) -> Optional['AccountModel']:
     return await account_service.get_by_title(user_id, title)
+
+
+async def delete_account(id_: str) -> None:
+    return await account_service.delete(id_)

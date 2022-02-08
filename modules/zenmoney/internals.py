@@ -1,14 +1,14 @@
 import logging
 from asyncio import gather
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Optional, Tuple
+from typing import TYPE_CHECKING, Coroutine, List, Optional, Tuple
 from uuid import uuid4
 
 from core import settings
 from core.clients import zenmoney_client
-from libs.zenmoney.schemas import Transaction
-from modules.accounts import create_account_from_zenmoney_account
-from modules.categories import create_category_from_zenmoney_tag
+from libs.zenmoney.schemas import DiffResponse, Transaction
+from modules.accounts import create_account_from_zenmoney_account, delete_account
+from modules.categories import create_category_from_zenmoney_tag, delete_category
 from modules.users import init_user_zenmoney_data, update_user_zenmoney_last_sync
 
 if TYPE_CHECKING:
@@ -32,9 +32,7 @@ async def get_auth_tokens(code: str, user_id: int) -> Tuple[Optional[str], Optio
 
 
 async def init_user(user: 'UserModel', token: str):
-    diff = await zenmoney_client.diff(token, server_timestamp=0)
-
-    # FIXME check error
+    diff = await _sync_by_diff(user_id=user.id, user_token=token)
 
     await init_user_zenmoney_data(
         user=user,
@@ -42,14 +40,6 @@ async def init_user(user: 'UserModel', token: str):
         last_sync=diff.server_timestamp,
         user_id=diff.user[0].id,  # type: ignore
     )
-
-    if diff.tag is not None:
-        await gather(*[create_category_from_zenmoney_tag(user.id, tag) for tag in diff.tag])
-
-    if diff.account is not None:
-        await gather(
-            *[create_account_from_zenmoney_account(user.id, account) for account in diff.account]
-        )
 
 
 async def create_expense(
@@ -78,12 +68,50 @@ async def create_expense(
         at_date=at_date,
     )
 
-    diff = await zenmoney_client.diff(
+    diff = await _sync_by_diff(
+        user_id=user.id,
         user_token=user.zenmoney_token.decrypted,  # type: ignore
-        server_timestamp=user.zenmoney_last_sync,  # type: ignore
-        transaction=[transaction],
+        last_sync=user.zenmoney_last_sync,  # type: ignore
+        transactions=[transaction],
     )
 
-    # FIXME check error
-
     await update_user_zenmoney_last_sync(user, diff.server_timestamp)
+
+
+async def _sync_by_diff(
+    user_id: int,
+    user_token: str,
+    last_sync: int = 0,
+    transactions: Optional[List[Transaction]] = None,
+) -> DiffResponse:
+    # FIXME check error
+    diff = await zenmoney_client.diff(
+        user_token=user_token,
+        server_timestamp=last_sync,
+        transaction=transactions,
+    )
+
+    await _handle_diff_changes(user_id, diff)
+
+    return diff
+
+
+async def _handle_diff_changes(user_id: int, diff: DiffResponse) -> None:
+    tasks: List[Coroutine] = []
+
+    if diff.tag is not None:
+        tasks += [create_category_from_zenmoney_tag(user_id, tag) for tag in diff.tag]
+
+    if diff.account is not None:
+        tasks += [
+            create_account_from_zenmoney_account(user_id, account) for account in diff.account
+        ]
+
+    if diff.deletion is not None:
+        for deletion in diff.deletion:
+            if deletion.object == 'tag':
+                tasks.append(delete_category(deletion.id))
+            elif deletion.object == 'account':
+                tasks.append(delete_account(deletion.id))
+
+    await gather(*tasks)

@@ -23,3 +23,7 @@ async def get_outcome_categories_by_user(user_id: int) -> List['CategoryModel']:
 
 async def get_user_category_by_title(user_id: int, title: str) -> Optional['CategoryModel']:
     return await category_service.get_by_title(user_id, title)
+
+
+async def delete_category(id_: str) -> None:
+    return await category_service.delete(id_)
