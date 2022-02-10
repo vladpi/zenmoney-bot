@@ -8,7 +8,11 @@ from uuid import uuid4
 from core import settings
 from core.clients import zenmoney_client
 from libs.zenmoney.schemas import DiffResponse, Transaction
-from modules.accounts import create_account_from_zenmoney_account, delete_account
+from modules.accounts import (
+    create_account_from_zenmoney_account,
+    delete_account,
+    update_account_transactions_count,
+)
 from modules.categories import (
     create_category_from_zenmoney_tag,
     delete_category,
@@ -46,7 +50,7 @@ async def init_user(user: 'UserModel', token: str):
             last_sync=diff.server_timestamp,
             user_id=diff.user[0].id,  # type: ignore
         ),
-        _init_categories_transactions_count(diff),
+        _init_transactions_count(diff),
     )
 
 
@@ -86,6 +90,7 @@ async def create_expense(
     await gather(
         update_user_zenmoney_last_sync(user, diff.server_timestamp),
         update_category_transactions_count(category_id),
+        update_account_transactions_count(account_id),
     )
 
 
@@ -128,22 +133,30 @@ async def _handle_diff_changes(user_id: int, diff: DiffResponse) -> None:
     await gather(*tasks)
 
 
-async def _init_categories_transactions_count(diff: DiffResponse) -> None:
+async def _init_transactions_count(diff: DiffResponse) -> None:
     if diff.transaction is None:
         return None
 
     categories_transactions_count: DefaultDict[str, int] = defaultdict(int)
+    accounts_transactions_count: DefaultDict[str, int] = defaultdict(int)
 
     for transaction in diff.transaction:
-        if transaction.tag is None:
-            continue
+        if transaction.tag is not None:
+            for tag in transaction.tag:
+                categories_transactions_count[tag] += 1
 
-        for tag in transaction.tag:
-            categories_transactions_count[tag] += 1
+        accounts_transactions_count[transaction.outcome_account] += 1
 
     await gather(
         *[
             update_category_transactions_count(id_, count)
             for id_, count in categories_transactions_count.items()
+        ]
+    )
+
+    await gather(
+        *[
+            update_account_transactions_count(id_, count)
+            for id_, count in accounts_transactions_count.items()
         ]
     )

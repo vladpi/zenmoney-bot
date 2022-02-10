@@ -23,3 +23,10 @@ async def get_user_account_by_title(user_id: int, title: str) -> Optional['Accou
 
 async def delete_account(id_: str) -> None:
     return await account_service.delete(id_)
+
+
+async def update_account_transactions_count(
+    id_: str,
+    transactions_count: Optional[int] = None,
+) -> None:
+    return await account_service.update_transactions_count(id_, transactions_count)

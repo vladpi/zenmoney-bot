@@ -7,3 +7,5 @@ class AccountModel(BaseModel):
     instrument_id: int
 
     title: str
+
+    transactions_count: int = 0
