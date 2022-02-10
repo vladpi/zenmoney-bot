@@ -15,4 +15,4 @@ async def create_from_zenmoney_tag(user_id: int, tag: 'Tag') -> CategoryModel:
         is_income=tag.show_income,
         is_outcome=tag.show_outcome,
     )
-    return await category_service.put(category)
+    return await category_service.put(category, exclude_from_update={'transactions_count'})

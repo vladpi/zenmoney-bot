@@ -1,14 +1,19 @@
 import logging
 from asyncio import gather
+from collections import defaultdict
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Coroutine, List, Optional, Tuple
+from typing import TYPE_CHECKING, Coroutine, DefaultDict, List, Optional, Tuple
 from uuid import uuid4
 
 from core import settings
 from core.clients import zenmoney_client
 from libs.zenmoney.schemas import DiffResponse, Transaction
 from modules.accounts import create_account_from_zenmoney_account, delete_account
-from modules.categories import create_category_from_zenmoney_tag, delete_category
+from modules.categories import (
+    create_category_from_zenmoney_tag,
+    delete_category,
+    update_category_transactions_count,
+)
 from modules.users import init_user_zenmoney_data, update_user_zenmoney_last_sync
 
 if TYPE_CHECKING:
@@ -34,11 +39,14 @@ async def get_auth_tokens(code: str, user_id: int) -> Tuple[Optional[str], Optio
 async def init_user(user: 'UserModel', token: str):
     diff = await _sync_by_diff(user_id=user.id, user_token=token)
 
-    await init_user_zenmoney_data(
-        user=user,
-        token=token,
-        last_sync=diff.server_timestamp,
-        user_id=diff.user[0].id,  # type: ignore
+    await gather(
+        init_user_zenmoney_data(
+            user=user,
+            token=token,
+            last_sync=diff.server_timestamp,
+            user_id=diff.user[0].id,  # type: ignore
+        ),
+        _init_categories_transactions_count(diff),
     )
 
 
@@ -75,7 +83,10 @@ async def create_expense(
         transactions=[transaction],
     )
 
-    await update_user_zenmoney_last_sync(user, diff.server_timestamp)
+    await gather(
+        update_user_zenmoney_last_sync(user, diff.server_timestamp),
+        update_category_transactions_count(category_id),
+    )
 
 
 async def _sync_by_diff(
@@ -115,3 +126,24 @@ async def _handle_diff_changes(user_id: int, diff: DiffResponse) -> None:
                 tasks.append(delete_account(deletion.id))
 
     await gather(*tasks)
+
+
+async def _init_categories_transactions_count(diff: DiffResponse) -> None:
+    if diff.transaction is None:
+        return None
+
+    categories_transactions_count: DefaultDict[str, int] = defaultdict(int)
+
+    for transaction in diff.transaction:
+        if transaction.tag is None:
+            continue
+
+        for tag in transaction.tag:
+            categories_transactions_count[tag] += 1
+
+    await gather(
+        *[
+            update_category_transactions_count(id_, count)
+            for id_, count in categories_transactions_count.items()
+        ]
+    )

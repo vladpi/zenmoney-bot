@@ -27,3 +27,10 @@ async def get_user_category_by_title(user_id: int, title: str) -> Optional['Cate
 
 async def delete_category(id_: str) -> None:
     return await category_service.delete(id_)
+
+
+async def update_category_transactions_count(
+    id_: str,
+    transactions_count: Optional[int] = None,
+) -> None:
+    return await category_service.update_transactions_count(id_, transactions_count)

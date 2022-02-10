@@ -8,3 +8,5 @@ class CategoryModel(BaseModel):
     title: str
     is_income: bool
     is_outcome: bool
+
+    transactions_count: int = 0

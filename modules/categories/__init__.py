@@ -4,6 +4,7 @@ from .exports import (  # noqa
     get_categories_by_user,
     get_outcome_categories_by_user,
     get_user_category_by_title,
+    update_category_transactions_count,
 )
 from .schemas import CategoryModel  # noqa
 from .tables import *  # noqa
