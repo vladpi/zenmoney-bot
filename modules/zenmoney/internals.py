@@ -141,6 +141,9 @@ async def _init_transactions_count(diff: DiffResponse) -> None:
     accounts_transactions_count: DefaultDict[str, int] = defaultdict(int)
 
     for transaction in diff.transaction:
+        if transaction.deleted:
+            continue
+
         if transaction.tag is not None:
             for tag in transaction.tag:
                 categories_transactions_count[tag] += 1
