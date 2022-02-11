@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .internals import init_zenmoney_data, update_zenmoney_last_sync
+from .internals import init_zenmoney_data, update_default_outcome_account, update_zenmoney_last_sync
 from .schemas import UserModel
 from .service import user_service
 
@@ -45,3 +45,10 @@ async def init_user_zenmoney_data(
 
 async def update_user_zenmoney_last_sync(user: 'UserModel', last_sync: int) -> 'UserModel':
     return await update_zenmoney_last_sync(user, last_sync)
+
+
+async def update_user_default_outcome_account(
+    user: 'UserModel',
+    default_outcome_account: Optional[str],
+) -> 'UserModel':
+    return await update_default_outcome_account(user, default_outcome_account)

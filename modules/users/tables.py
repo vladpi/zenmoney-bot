@@ -13,4 +13,12 @@ users = sa.Table(
     sa.Column('zenmoney_token', sa.Text, nullable=True),
     sa.Column('zenmoney_last_sync', sa.BigInteger, nullable=True),
     sa.Column('zenmoney_user_id', sa.BigInteger, nullable=True),
+    sa.Column(
+        'default_outcome_account_id',
+        sa.ForeignKey(
+            'accounts.id',
+            ondelete='SET NULL',
+        ),
+        nullable=True,
+    ),
 )

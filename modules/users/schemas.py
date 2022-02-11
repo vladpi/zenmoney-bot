@@ -40,3 +40,5 @@ class UserModel(BaseModel):
     zenmoney_user_id: Optional[int]
     zenmoney_token: Optional[EncryptedStr]
     zenmoney_last_sync: Optional[int]
+
+    default_outcome_account_id: Optional[str]

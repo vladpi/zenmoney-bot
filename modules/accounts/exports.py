@@ -17,6 +17,10 @@ async def get_accounts_by_user(user_id: int) -> List['AccountModel']:
     return await account_service.get_by_user(user_id)
 
 
+async def get_user_account_by_id(user_id: int, id_: str) -> Optional['AccountModel']:
+    return await account_service.get_by_user_and_id(user_id, id_)
+
+
 async def get_user_account_by_title(user_id: int, title: str) -> Optional['AccountModel']:
     return await account_service.get_by_title(user_id, title)
 

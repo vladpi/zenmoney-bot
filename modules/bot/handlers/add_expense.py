@@ -5,7 +5,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext, filters
 
 from libs.utils import parsing
-from modules.accounts import get_accounts_by_user, get_user_account_by_title
+from modules.accounts import get_accounts_by_user, get_user_account_by_id, get_user_account_by_title
 from modules.bot import buttons, messages
 from modules.bot.bot import dispatcher
 from modules.bot.states import AddExpense
@@ -39,17 +39,26 @@ async def add_expense_amount_and_comment(
         proxy['expense']['amount'] = amount
         proxy['expense']['comment'] = comment
 
-    accounts = await get_accounts_by_user(user.id)
-    if len(accounts) > 1:
-        await messages.add_expense.select_account(message.chat.id, accounts)
-        await AddExpense.account.set()
+    account = None
+    if user.default_outcome_account_id is not None:
+        account = await get_user_account_by_id(user.id, user.default_outcome_account_id)
 
     else:
+        accounts = await get_accounts_by_user(user.id)
+        if len(accounts) == 1:
+            account = accounts[0]
+
+    if account is not None:
         async with state.proxy() as proxy:
-            proxy['expense']['account_id'] = accounts[0].id
+            proxy['expense']['account_id'] = account.id
+            proxy['expense']['instrument_id'] = account.instrument_id
 
         await messages.add_expense.add_expense_date(message.chat.id)
         await AddExpense.date.set()
+
+    else:
+        await messages.add_expense.select_account(message.chat.id, accounts)
+        await AddExpense.account.set()
 
 
 @dispatcher.message_handler(state=AddExpense.account)

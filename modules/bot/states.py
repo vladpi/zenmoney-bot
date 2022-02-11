@@ -6,3 +6,7 @@ class AddExpense(StatesGroup):
     amount_and_comment = State()
     date = State()
     category = State()
+
+
+class SetDefaultOutcomeAccount(StatesGroup):
+    account = State()

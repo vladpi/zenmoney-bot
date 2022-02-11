@@ -22,11 +22,22 @@ class AccountService(BaseDBService):
 
     async def get_by_title(self, user_id: int, title: str) -> Optional[AccountModel]:
         record = await self.db.fetch_one(
-            self._sorted_query(
-                sa.select([accounts]).where(
-                    accounts.c.user_id == user_id,
-                    accounts.c.title == title,
-                )
+            sa.select([accounts]).where(
+                accounts.c.user_id == user_id,
+                accounts.c.title == title,
+            )
+        )
+
+        if record is not None:
+            return AccountModel.parse_obj(record)
+
+        return None
+
+    async def get_by_user_and_id(self, user_id: int, id_: str) -> Optional[AccountModel]:
+        record = await self.db.fetch_one(
+            sa.select([accounts]).where(
+                accounts.c.user_id == user_id,
+                accounts.c.id == id_,
             )
         )
 
